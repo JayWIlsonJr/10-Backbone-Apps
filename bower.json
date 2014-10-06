@@ -1,0 +1,11 @@
+{
+  "name": "10-backbone-apps",
+  "private": true,
+  "dependencies": {
+    "modernizr": "~2.6.2",
+    "jquery": "~1.11.0",
+    "backbone": "~1.1.2",
+    "neat": "~1.6.0"
+  },
+  "devDependencies": {}
+}
