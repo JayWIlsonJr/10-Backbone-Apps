@@ -8,35 +8,67 @@
 
     initialize: function(opts) {
       var options = _.defaults({}, opts, {
-        $container: $('.container')
+        $container: $('body')
       });
 
       options.$container.append(this.el);
 
       this.render();
+    }, 
+
+    render: function() {
+      this.renderChild();
+    }, 
+
+    renderChild: function() {
+      var formElementsView = new FormElementsView({
+        $container: this.$el,
+        model: this.model
+      });
     }
    });
 
 
-   var InputView = Backbone.View.extend({
-    tagName: 'input',
-    className: 'form_input',
+   var FormElementsView = Backbone.View.extend({
+    tagName: 'form',
+    className: 'form',
+
+    template: _.template($('#template_form_elements').text()),
+
+    events: {
+      'submit' : 'modelUpdate'
+    },
+
+    modelUpdate: function(e) {
+      e.preventDefault();
+      var data = this.$el.serializeObject();
+      this.model.save(data);
+      this.$('input, textarea').val("");
+    },
 
     initialize: function(opts) {
       var options = _.defaults({}, opts, {
-        $container: $('.form_container')
+        $container: opts.$container
       });
-      console.log(this.el)
-      options.$container.append('<form><label>Title:' + this.el + '</label></form>');
+
+      options.$container.append(this.el);
 
       this.render();
+    }, 
+
+    render: function() {
+      this.$el.html(this.template())
     }
    }); 
 
 /* ==========================================================================
    MODELS:
    ========================================================================== */
+   var BlogPostModel = Backbone.Model.extend({
+    idAttribute: '_id',
 
+    urlRoot: 'http://tiny-pizza-server.herokuapp.com/collections/posts'
+   });
 
 /* ==========================================================================
    COLLECTIONS:
@@ -51,12 +83,17 @@
 /* ==========================================================================
    GLUE CODE:
    ========================================================================== */
-
+    $.fn.serializeObject = function() {
+      return this.serializeArray().reduce(function(acum, i) {
+        acum[i.name] = i.value;
+        return acum;
+      }, {});
+    };
 
   $(document).ready(function() {
-   var formView = new FormView();
-   var inputView = new InputView();
 
-    console.log('it works!');
+
+    var blogPostModel = new BlogPostModel();
+    var formView = new FormView({model: blogPostModel});
   });
 })();
